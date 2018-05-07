@@ -45,6 +45,73 @@
       }
       summary:hover { cursor: pointer; }
       summary::-webkit-details-marker { display: none; }
+
+      /* dark theme */
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        background: #222;
+        color: #fff;
+        /* color: #59636F; */
+      }
+
+      a {
+        color: #fff;
+      }
+
+      table {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+      }
+
+      details h2 {
+        color: #59636F;
+        font-weight: 500;
+        text-transform: uppercase;
+      }
+      details summary:focus {
+        outline: none;
+      }
+      details h2:after {
+        /* content: ' ►'; */
+        content: ' ▸';
+      }
+      details[open] h2:after {
+        /* content: ' ▼'; */
+        content: ' ▾';
+      }
+
+      details table thead tr {
+        border-top: 2px solid #31353E;
+        border-bottom: 2px solid #31353E;
+        text-transform: uppercase;
+      }
+
+      details table th {
+        color: #59636F;
+        font-weight: 500;
+      }
+
+      details table tbody tr {
+        border-bottom: 1px solid #31353E;
+      }
+      details table tbody tr:hover {
+        background-color: rgba(0,0,0,0.16)
+      }
+
+      details table tbody td {
+        padding: 1em;
+      }
+
+      .stocks-container {
+        margin: 0 auto;
+        max-width: 800px;
+      }
+
+      .stock-symbol {
+        padding: 4px 8px;
+      }
+
+      .stock-price,
+      .stock-mkt-cap { background-color: transparent !important; }
     </style>
   </head>
 
@@ -67,7 +134,7 @@
         // {'name': 'Market ETFs', 'symbols': ['SPY', 'DIA', 'QQQ', 'IWM']},
         // {'name': 'Sector ETFs', 'symbols': ['XLF', 'XLK', 'XLV', 'XLP', 'XLY', 'XLE', 'XLB', 'XLI', 'XLU', 'XLRE']},
         // {'name': 'Banks', 'symbols': ['GS', 'MS', 'JPM', 'WFC', 'C', 'BAC', 'BCS', 'DB', 'CS', 'RBS']},
-        {'name': 'Crypto', 'symbols': ['BTC']},
+        // {'name': 'Crypto', 'symbols': ['BTC']},
         {'name': 'Tech', 'symbols': ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'FB', 'TWTR', 'NFLX', 'SNAP', 'SPOT', 'DBX', 'BABA', 'INTC', 'AMD', 'NVDA', 'ORCL']},
         // {'name': 'Bond ETFs', 'symbols': ['BND', 'BIV', 'JNK']},
         // {'name': 'Other ETFs', 'symbols': ['VOO', 'VTI', 'VGK', 'VPL', 'VWO', 'VDE', 'XOP', 'VFH', 'VHT', 'VIG', 'VYM', 'VAW', 'REM', 'XHB', 'GLD']},
@@ -94,11 +161,11 @@
           tableHeaderHtml = `
             <thead>
               <tr>
-                <th></th>
+                <th>Symbol</th>
                 <th class="stock-price">Last</th>
+                <th class="stock-mkt-cap">Mkt Cap</th>
                 <th class="stock-change">Change</th>
                 <th class="stock-change-pct">Change%</th>
-                <th class="stock-mkt-cap">Mkt Cap</th>
               </tr>
             </thead>
           `
@@ -112,9 +179,9 @@
             <tr data-symbol="${symbol}">
               <td class="stock-symbol"><a href="${symbolUrl(symbol)}" target="_blank">${symbol}</a></td>
               <td class="stock-price"></td>
+              <td class="stock-mkt-cap"></td>
               <td class="stock-change"></td>
               <td class="stock-change-pct"></td>
-              <td class="stock-mkt-cap"></td>
             </tr>
           `
 
@@ -158,27 +225,27 @@
             let formattedChange = data.quote.change.toLocaleString('en', {'minimumFractionDigits': 2});
             let formattedChangePercent = (data.quote.changePercent * 100).toFixed(1) + '%';
             let formattedMarketCap = formatMarketCap(data.quote.marketCap);
-            let rgbColor = data.quote.changePercent > 0 ? '0,255,0' : '255,0,0';
+            let rgbColor = data.quote.changePercent > 0 ? '48, 205, 152' : '249, 81, 55';
             let rgbOpacity = Math.min(Math.abs(data.quote.changePercent) * 20, 1);
 
             document.querySelectorAll(`[data-symbol="${symbol}"] .stock-price`).forEach(e => {
               e.innerHTML = formattedPrice;
-              e.setAttribute('style', `background-color: rgba(${rgbColor}, ${rgbOpacity})`);
+              // e.setAttribute('style', `color: rgb(${rgbColor})`);
             });
 
             document.querySelectorAll(`[data-symbol="${symbol}"] .stock-change`).forEach(e => {
               e.innerHTML = formattedChange;
-              e.setAttribute('style', `background-color: rgba(${rgbColor}, ${rgbOpacity})`);
+              e.setAttribute('style', `color: rgb(${rgbColor})`);
             });
 
             document.querySelectorAll(`[data-symbol="${symbol}"] .stock-change-pct`).forEach(e => {
               e.innerHTML = formattedChangePercent;
-              e.setAttribute('style', `background-color: rgba(${rgbColor}, ${rgbOpacity})`);
+              e.setAttribute('style', `color: rgb(${rgbColor})`);
             });
 
             document.querySelectorAll(`[data-symbol="${symbol}"] .stock-mkt-cap`).forEach(e => {
               e.innerHTML = formattedMarketCap;
-              e.setAttribute('style', `background-color: rgba(${rgbColor}, ${rgbOpacity})`);
+              // e.setAttribute('style', `color: rgb(${rgbColor})`);
             });
 
             if (addTitle) {
