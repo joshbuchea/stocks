@@ -46,6 +46,8 @@
       summary:hover { cursor: pointer; }
       summary::-webkit-details-marker { display: none; }
 
+
+
       /* dark theme */
       body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
@@ -98,12 +100,16 @@
       }
 
       details table tbody td {
-        padding: 1em;
+        padding: .5em;
       }
 
       .stocks-container {
         margin: 0 auto;
-        max-width: 800px;
+        max-width: 900px;
+      }
+
+      .stock-company {
+        white-space: nowrap;
       }
 
       .stock-symbol {
@@ -161,11 +167,12 @@
           tableHeaderHtml = `
             <thead>
               <tr>
+                <th>Name</th>
                 <th>Symbol</th>
                 <th class="stock-price">Last</th>
-                <th class="stock-mkt-cap">Mkt Cap</th>
                 <th class="stock-change">Change</th>
                 <th class="stock-change-pct">Change%</th>
+                <th class="stock-mkt-cap">Mkt Cap</th>
               </tr>
             </thead>
           `
@@ -177,11 +184,12 @@
 
           let html = `
             <tr data-symbol="${symbol}">
+              <td class="stock-company"></td>
               <td class="stock-symbol"><a href="${symbolUrl(symbol)}" target="_blank">${symbol}</a></td>
               <td class="stock-price"></td>
-              <td class="stock-mkt-cap"></td>
               <td class="stock-change"></td>
               <td class="stock-change-pct"></td>
+              <td class="stock-mkt-cap"></td>
             </tr>
           `
 
@@ -212,21 +220,42 @@
       }
 
       function updateDataForBatch(symbols, addTitle) {
-        let filters = ['latestPrice', 'change', 'changePercent', 'marketCap'];
-        if (addTitle) filters.push('companyName');
+        let filters = [
+          'companyName',
+          'latestPrice',
+          'change',
+          'changePercent',
+          'marketCap',
+          'latestVolume',
+          'avgTotalVolume',
+          'high',
+          'low',
+          'peRatio',
+          'week52High',
+          'week52Low',
+          'ytdChange',
+        ];
+        // if (addTitle) filters.push('companyName');
         let url = `${BASE_URL}?types=quote&symbols=${symbols.join(',')}&filter=${filters.join(',')}`;
 
         fetch(url).then(response => response.json()).then(json => {
+          console.log('json:', json);
           symbols.forEach(symbol => {
             let data = json[symbol];
             if (typeof(data) === 'undefined') return;
 
+            let companyName = data.quote.companyName;
             let formattedPrice = formatQuote(data.quote.latestPrice);
-            let formattedChange = data.quote.change.toLocaleString('en', {'minimumFractionDigits': 2});
+            let formattedChangeCurrency = data.quote.change.toLocaleString('en', {'minimumFractionDigits': 2});
             let formattedChangePercent = (data.quote.changePercent * 100).toFixed(1) + '%';
+            let formattedChange = `$${formattedChangeCurrency} (${formattedChangePercent})`;
             let formattedMarketCap = formatMarketCap(data.quote.marketCap);
             let rgbColor = data.quote.changePercent > 0 ? '48, 205, 152' : '249, 81, 55';
             let rgbOpacity = Math.min(Math.abs(data.quote.changePercent) * 20, 1);
+
+            document.querySelectorAll(`[data-symbol="${symbol}"] .stock-company`).forEach(e => {
+              e.innerHTML = companyName;
+            });
 
             document.querySelectorAll(`[data-symbol="${symbol}"] .stock-price`).forEach(e => {
               e.innerHTML = formattedPrice;
